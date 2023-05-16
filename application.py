@@ -154,7 +154,9 @@ def predict():
 
     print(text)
     inputs = get_inputs(text)
+    print(inputs)
     prediction = model.predict(inputs)
+    print(prediction)
 
     output = prediction[0]
 
