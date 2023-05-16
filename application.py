@@ -144,12 +144,15 @@ def home():
 
 @application.route('/predict',methods=['POST'])
 def predict():
+    print("reached predict")
     text = ''
     uploaded_file = request.files['file']
+    print(uploaded_file)
     if uploaded_file.filename != '':
         uploaded_file.save(uploaded_file.filename)
         text = extractText(uploaded_file.filename)
 
+    print(text)
     inputs = get_inputs(text)
     prediction = model.predict(inputs)
 
