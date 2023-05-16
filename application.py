@@ -136,7 +136,7 @@ def get_inputs(text):
 
 
 application = Flask(__name__) #Initialize the flask App
-model = load('/model.joblib') 
+model = load('model.joblib') 
 
 @application.route('/')
 def home():
