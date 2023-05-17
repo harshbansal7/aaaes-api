@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html >
+<!--From https://codepen.io/frytyler/pen/EGdtg-->
+<head>
+  <meta charset="UTF-8">
+  <title>ML API</title>
+  <link href='https://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Arimo' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Hind:300' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300' rel='stylesheet' type='text/css'>
+<!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"> -->
+<link rel="stylesheet" href="../static/css/style.css">
+  
+</head>
+
+<body>
+ <div class="login">
+	<h1>Automated Assignment Assessment and Evaluation System</h1>
+
+  <form action="{{ url_for('predict')}}" method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" accept=".pdf, .zip">
+    <input type="text" name="examiner_name" placeholder="Name of Examiner" required="required" />
+  
+    <label><input type="radio" name="score_normalization" value="normalize" checked>Normalize Scores</label>
+    <label><input type="radio" name="score_normalization" value="no_normalize">Don't Normalize Scores</label>
+  
+    <div id="normalize_fields">
+      <label>Minimum Value: <input type="text" name="min_value"></label>
+      <label>Maximum Value: <input type="text" name="max_value"></label>
+    </div>
+  
+    <button type="submit" class="btn btn-primary btn-block btn-large">Predict</button>
+  </form>
+  
+  <br>
+  <br>
+  
+  {{ prediction_text }}
+  
+  
+
+ </div>
+
+ <script>
+  var radioNormalize = document.querySelector('input[value="normalize"]');
+  var radioNormalize2 = document.querySelector('input[value="no_normalize"]');
+  var normalizeFields = document.getElementById('normalize_fields');
+
+  radioNormalize.addEventListener('change', function() {
+    normalizeFields.style.display = this.checked ? 'block' : 'none';
+  });
+
+  // Hide normalize_fields on page load if "no_normalize" is initially checked
+  radioNormalize2.addEventListener('change', function() {
+    normalizeFields.style.display = this.checked ? 'none' : 'block';
+  });
+
+ </script>
+</body>
+</html>

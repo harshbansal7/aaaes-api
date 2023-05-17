@@ -1,36 +1,178 @@
 <!DOCTYPE html>
-<html >
-<!--From https://codepen.io/frytyler/pen/EGdtg-->
+<html lang="en" >
 <head>
   <meta charset="UTF-8">
-  <title>ML API</title>
-  <link href='https://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
-<link href='https://fonts.googleapis.com/css?family=Arimo' rel='stylesheet' type='text/css'>
-<link href='https://fonts.googleapis.com/css?family=Hind:300' rel='stylesheet' type='text/css'>
-<link href='https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300' rel='stylesheet' type='text/css'>
-<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  
+  <title>AAAES - Harsh Bansal</title>
+  <script src="https://kit.fontawesome.com/e2ac9cc532.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <!-- <link rel="stylesheet" href="../static/css/style.css"> -->
+
 </head>
-
 <body>
- <div class="login">
-	<h1>Predict Salary Analysis</h1>
+<!-- partial:index.partial.html -->
+<div class='signup-container'>
+  <div class='left-container'>
+    <h1>
+      <i class='fas fa-pen'></i>
+      AAAES
+    </h1>
+    <div class='image-art'>
+      <img src='https://www.tutorssky.com/wp-content/uploads/2021/10/assignment-vector-4961506.png'>
+    </div>
+  </div>
+  <form id = 'main-form' action="{{ url_for('predict')}}" method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
+  <div class='right-container'>
+    <header>
+      <h1>Automated Assignment Assessment and Evaluation System</h1>
+      <div class='new-sec'>
+        <div class='name-of-examiner'>
+          <label for='name-of-examiner'>Name of Examiner</label>
+          <input id='name-of-examiner' placeholder="Examiner's name" type='text'>
+        </div>
+        <div class='name-of-examiner'>
+          <label for='name-of-examiner'>Examiner Code</label>
+          <input id='name-of-examiner' placeholder="Examiner's name" type='password'>
+        </div>
+      </div>
+      <div class='new-sec'>
+        <div class='normalize-score-div'>
+          <label for='normalize-score'>Normalize Scores</label>
+          <div class='radio-container'>
+            <input checked='' id='normalize-score-yes' name='normalize-score' type='radio' value='yes'>
+            <label for='normalize-score-yes'>YES</label>
+            <input id='normalize-score-no' name='normalize-score' type='radio' value='male'>
+            <label for='normalize-score-no'>NO</label>
+          </div>
+        </div>
+        <div class='custom-max-min-option-div'>
+          <label for='custom-max-min-option'>Custom Max / Min Values</label>
+          <div class='radio-container'>
+            <input checked='' id='custom-mm-yes' name='custom-max-min-option' type='radio' value='yes'>
+            <label for='custom-mm-yes'>YES</label>
+            <input id='custom-mm-no' name='custom-max-min-option' type='radio' value='no'>
+            <label for='custom-mm-no'>NO</label>
+          </div>
+        </div>
+      </div>
+      <div class="new-sec max-min-input">
+        <div class='max-score'>
+          <label for='max-score'>Maximum Score</label>
+          <input id='max-score' name = 'max-score' type='number' value="100">
+        </div>
+        <div class='min-score'>
+          <label for='min-score'>Minimum Score</label>
+          <input id='min-score' name = 'min-score' type='number' value="50">
+        </div>
+      </div>
+      <div class='file-upload'>
+        <label for='file-upload'>File</label>
+        <input id='file' name = 'file' type='file' accept = ".pdf, .zip">
+      </div>
+    </header>
+    <footer>
+      <div class='new-sec'>
+        <button id='reset'>Reset</button>
+        <button id='submit' type = 'submit'>Submit</button>
+      </div>
+    </footer>
+  </div>
+  </form>
+</div>
+<!-- partial -->
+{{ prediction_text }}
 
-    <form action="{{ url_for('predict')}}" method="POST" enctype="multipart/form-data">
-      <!-- <input type="text" name="experience" placeholder="Experience" required="required" />
-      <input type="text" name="test_score" placeholder="Test Score" required="required" />
-      <input type="text" name="interview_score" placeholder="Interview Score" required="required" /> -->
 
-      <input type="file" name="file" accept=".pdf">
-      <button type="submit" class="btn btn-primary btn-block btn-large">Predict</button>
-    </form>
+<<script>
 
-   <br>
-   <br>
-   
-   {{ prediction_text }}
+  function validateForm() {
+    var inputs = document.querySelectorAll('#main-form input[type="text"], #main-form input[type="number"], #main-form input[type="password"], #main-form input[type="file"]');
+    for (var i = 0; i < inputs.length; i++) {
+      if (inputs[i].value === '') {
+        alert('Please fill in all the required fields.');
+        return false; // Prevent form submission
+      }
+    }
+    return true; // Allow form submission
+  }
 
- </div>
+  document.getElementById('reset').addEventListener('click', function() {
+    // Replace 'form-id' with the actual ID of your form element
+    var form = document.getElementById('abc');
+    form.reset();
+  });
+
+  // Display div new-sec min max values only when Custom Min Max Values is selected and normalize scores is selected
+  var radio = document.getElementsByName('custom-max-min-option');
+  var max_min_input = document.querySelector('.max-min-input');
+  var max_mindiv = document.querySelector('.custom-max-min-option-div');
+  var normalize = document.querySelector('input[name="normalize-score"]:checked');
+
+  function fadeIn(element) {
+    element.style.opacity = 0;
+    if (element === max_min_input) {
+      element.style.display = 'flex';
+    } else {
+      element.style.display = 'block';
+    }
+    var tick = function() {
+      element.style.opacity = +element.style.opacity + 0.05;
+
+      if (+element.style.opacity < 1) {
+        (window.requestAnimationFrame && requestAnimationFrame(tick)) || setTimeout(tick, 16);
+      }
+    };
+    tick();
+  }
+
+  function fadeOut(element) {
+    element.style.opacity = 1;
+    var tick = function() {
+      element.style.opacity = +element.style.opacity - 0.05;
+
+      if (+element.style.opacity > 0) {
+        (window.requestAnimationFrame && requestAnimationFrame(tick)) || setTimeout(tick, 16);
+      } else {
+        element.style.display = 'none';
+      }
+    };
+    tick();
+  }
+
+  function toggleMinMaxValues() {
+    if (normalize && normalize.value === 'yes') {
+      fadeIn(max_mindiv);
+      if (radio[0].checked) {
+        fadeIn(max_min_input);
+      } else {
+        fadeOut(max_min_input);
+      }
+    } else {
+      fadeOut(max_mindiv);
+      fadeOut(max_min_input);
+    }
+  }
+
+  toggleMinMaxValues(); // Initial check
+
+  // Event listener for normalize-score radio buttons
+  document.querySelectorAll('input[name="normalize-score"]').forEach(function (el) {
+    el.addEventListener('change', function () {
+      normalize = document.querySelector('input[name="normalize-score"]:checked');
+      toggleMinMaxValues();
+    });
+  });
+
+  // Event listener for custom-max-min-option radio buttons
+  document.querySelectorAll('input[name="custom-max-min-option"]').forEach(function (el) {
+    el.addEventListener('change', function () {
+      if (this.value === 'yes') {
+        fadeIn(max_min_input);
+      } else {
+        fadeOut(max_min_input);
+      }
+    });
+  });
+</script>
 
 
 </body>
