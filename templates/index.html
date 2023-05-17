@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>AAAES - Harsh Bansal</title>
-  <script src="https://kit.fontawesome.com/e2ac9cc532.js" crossorigin="anonymous"></script>
+  <script src="https://kit.fontawesome.com/b69f406a3a.js" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <!-- <link rel="stylesheet" href="../static/css/style.css"> -->
 
@@ -17,7 +17,8 @@
       AAAES
     </h1>
     <div class='image-art'>
-      <img src='https://www.tutorssky.com/wp-content/uploads/2021/10/assignment-vector-4961506.png'>
+      <img id = 'img-link' src='https://www.tutorssky.com/wp-content/uploads/2021/10/assignment-vector-4961506.png'>
+      <!-- {{ url_for('static', filename='harsha.png') }} -->
     </div>
   </div>
   <form id = 'main-form' action="{{ url_for('predict')}}" method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
@@ -40,7 +41,7 @@
           <div class='radio-container'>
             <input checked='' id='normalize-score-yes' name='normalize-score' type='radio' value='yes'>
             <label for='normalize-score-yes'>YES</label>
-            <input id='normalize-score-no' name='normalize-score' type='radio' value='male'>
+            <input id='normalize-score-no' name='normalize-score' type='radio' value='no'>
             <label for='normalize-score-no'>NO</label>
           </div>
         </div>
@@ -64,6 +65,27 @@
           <input id='min-score' name = 'min-score' type='number' value="50">
         </div>
       </div>
+      <div class="new-sec round-to-integer">
+        <div class='round-to-integer-div'>
+          <label for='round-to-int'>Round to Integer</label>
+          <div class='radio-container'>
+            <input checked='' id='round-yes' name='round-to-int' type='radio' value='yes'>
+            <label for='round-yes'>YES</label>
+            <input id='round-no' name='round-to-int' type='radio' value='no'>
+            <label for='round-no'>NO</label>
+          </div>
+        </div>
+      </div>
+      <div class="toggle-button">
+        <div class='toggle-button'>
+          <div class='radio-container'>
+            <input checked='' id='face-no' name='face-toggle' type='radio' value='no'>
+            <label for='face-no'><i class="fa-regular fa-face-grimace"></i></label>
+            <input id='face-yes' name='face-toggle' type='radio' value='yes'>
+            <label for='face-yes'><i class="fa-regular fa-face-grin-wink"></i></label>
+          </div>
+        </div>
+      </div>
       <div class='file-upload'>
         <label for='file-upload'>File</label>
         <input id='file' name = 'file' type='file' accept = ".pdf, .zip">
@@ -79,10 +101,14 @@
   </form>
 </div>
 <!-- partial -->
-{{ prediction_text }}
+
+<!-- <h1>Result</h1> -->
+<p>{{ prediction_text }}</p>
+<!-- <h2>Table</h2> -->
+{{ result_table | safe }}
 
 
-<<script>
+<script>
 
   function validateForm() {
     var inputs = document.querySelectorAll('#main-form input[type="text"], #main-form input[type="number"], #main-form input[type="password"], #main-form input[type="file"]');
@@ -138,6 +164,22 @@
     tick();
   }
 
+  function toggleFace() {
+    var img = document.getElementById('img-link');
+    var image = document.querySelector('.left-container img');
+
+    if(facetoggle && facetoggle.value === 'yes') {
+      img.src = "{{ url_for('static', filename='harsha.png') }}";
+      image.style.width = '100%';
+      image.style.filter = "drop-shadow(3px 3px red) sepia(50%) drop-shadow(-3px -3px rgb(120, 181, 73))";
+
+    } else {
+      img.src = "https://www.tutorssky.com/wp-content/uploads/2021/10/assignment-vector-4961506.png";
+      image.style.width = '60%';
+      image.style.filter = 'sepia(100%)';
+    }
+  }
+
   function toggleMinMaxValues() {
     if (normalize && normalize.value === 'yes') {
       fadeIn(max_mindiv);
@@ -161,6 +203,14 @@
       toggleMinMaxValues();
     });
   });
+
+  document.querySelectorAll('input[name="face-toggle"]').forEach(function (el) {
+    el.addEventListener('change', function () {
+      facetoggle = document.querySelector('input[name="face-toggle"]:checked');
+      toggleFace();
+    });
+  });
+
 
   // Event listener for custom-max-min-option radio buttons
   document.querySelectorAll('input[name="custom-max-min-option"]').forEach(function (el) {

@@ -1,9 +1,12 @@
+from typing import final
 import numpy as np
 import pandas as pd
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, render_template, make_response
 import pickle
 from joblib import dump, load
-
+import os
+from scipy.stats import percentileofscore
+from zipfile import ZipFile
 # !sudo apt install build-essential libpoppler-cpp-dev pkg-config python3-dev
 # !pip install pdftotext
 # !pip install nltk
@@ -142,20 +145,72 @@ model = load('model.joblib')
 def home():
     return render_template('index.html')
 
-@application.route('/predict',methods=['POST'])
+@application.route('/predict', methods=['POST'])
 def predict():
-    text = ''
-    uploaded_file = request.files['file']
-    if uploaded_file.filename != '':
-        uploaded_file.save(uploaded_file.filename)
-        text = extractText(uploaded_file.filename)
+    formdata = request.form
+    directory_path = os.path.join(os.getcwd(), 'pdfs')
 
-    inputs = get_inputs(text)
-    prediction = model.predict(inputs)
+    file = request.files['file']
 
-    output = prediction[0]
+    result_df_2 = pd.DataFrame(columns=['filename', 'word_count', 'sen_count', 'smog_index', 'lexical_richness_scores', 'flesch_reading_ease', 'flesch_kincaid_grade', 'noun_count', 'verb_count', 'adj_count', 'com_words'])
+    final_df = pd.DataFrame(columns=['File Name', 'Base Score (10)'])
 
-    return render_template('index.html', prediction_text='Employee Salary should be $ {}'.format(output))
+    def process_pdf_file(pdf_file):
+        nonlocal result_df_2  # Declare the variables as nonlocal
+        pdf_path = os.path.join(directory_path, pdf_file)
+        input_params = get_inputs(extractText(pdf_path))  # Call your function with the PDF file path
+        score = model.predict(input_params)
+        input_params['filename'] = pdf_file
+        input_params['score'] = score
+        result_df_2 = pd.concat([result_df_2, input_params], ignore_index=True)
+
+    def extract_pdf_files_from_zip(zip_file):
+        with ZipFile(zip_file, 'r') as zip:
+            zip.extractall(directory_path)
+        pdf_files = [file for file in os.listdir(directory_path) if file.endswith(".pdf")]
+        for pdf_file in pdf_files:
+            process_pdf_file(pdf_file)
+
+        nonlocal final_df
+        final_df['File Name'] = result_df_2['filename']
+        final_df['Base Score (10)'] = result_df_2['score']
+
+        if(formdata['normalize-score'] == 'yes'):
+            final_df['Actual Percentile'] = round(final_df['Base Score (10)'].apply(lambda x: percentileofscore(final_df['Base Score (10)'], x)), 2)
+            if(formdata['custom-max-min-option'] == 'yes'):
+                min_percentile = int(formdata['min-score'])
+                max_percentile = int(formdata['max-score'])
+            else:
+                min_percentile = 50
+                max_percentile = 100
+            final_df['Normalized Percentile'] = round(min_percentile + ((final_df['Actual Percentile'] - final_df['Actual Percentile'].min()) / (final_df['Actual Percentile'].max() - final_df['Actual Percentile'].min())) * (max_percentile - min_percentile), 2)
+        
+        if(formdata['round-to-int'] == 'yes'):
+            final_df = final_df.apply(lambda x: np.round(x) if np.issubdtype(x.dtype, np.number) else x)
+
+        final_df = final_df.sort_values(by=['Base Score (10)'], ascending=False)
+
+
+    # Check if the file is a ZIP file or a PDF file
+    if file.filename.endswith('.zip'):
+        # Assuming 'directory_path' is the desired extraction path
+        extract_pdf_files_from_zip(file)
+    elif file.filename.endswith('.pdf'):
+        process_pdf_file(file.filename)
+    else:
+        # Handle unsupported file format
+        print("Unsupported file format.")
+
+    # Continue with the rest of your code using 'result_df' and 'result_df_2'
+
+    csv_string = final_df.to_csv(index=False)
+    response = make_response(csv_string)
+    response.headers['Content-Disposition'] = 'attachment; filename=data.csv'
+    response.headers['Content-type'] = 'text/csv'
+
+    return response
+
+    # return render_template('index.html', prediction_text='Here is the updated Result', result_table=final_df.to_html())
 
 if __name__ == "__main__":
     application.run(host='0.0.0.0', port=5000, debug=True)

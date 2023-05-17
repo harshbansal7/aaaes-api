@@ -18,6 +18,8 @@ body {
   weight: 100vw;
 }
 
+
+
 .signup-container {
   display: grid;
   grid-template-areas: "left right";
@@ -56,16 +58,16 @@ body {
   content: "";
   height: 100%;
   left: 0;
-  opacity: 0.4;
+  opacity: 0.3;
   position: absolute;
   width: 100%;
   z-index: 1;
 }
 .left-container img {
   filter: sepia(100%);
-  width: 70%;
+  width: 60%;
+  /* color: rgb(120, 181, 73) */
 }
-
 .right-container {
   background: #f9c7c2;
   display: grid;
@@ -118,6 +120,11 @@ body {
   color: rgba(0, 0, 0, 0.8);
   font-size: 16px;
 }
+.right-container .toggle-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+}
 .right-container .pets-weight .radio-container {
   display: flex;
   justify-content: space-between;
@@ -154,7 +161,7 @@ body {
   background: #171A2B;
 }
 
-.name-of-examiner label, .file-upload label, .max-min-input label, .normalize-score-div label, .custom-max-min-option-div label, .pets-weight label {
+.name-of-examiner label, .toggle-button label, .round-to-integer label, .file-upload label, .max-min-input label, .normalize-score-div label, .custom-max-min-option-div label, .pets-weight label {
   display: block;
   margin-bottom: 5px;
 }
